@@ -11,7 +11,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -47,7 +46,7 @@ class _HomepageState extends State<Homepage> {
   List<Widget> _widgetOptions = <Widget>[
     CounterPage(),
     VouchersPage(),
-    FriendsPage(),
+    // FriendsPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -65,17 +64,17 @@ class _HomepageState extends State<Homepage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
+            icon: Icon(Icons.home),
             label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.discount),
             label: 'Vouchers',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Friends',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.people),
+          //   label: 'Friends',
+          // ),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -96,7 +95,7 @@ class CounterPage extends StatefulWidget {
 
 class _CounterPageState extends State<CounterPage> {
   String _counter = '0';
-  late Map<String, String> items = {'': '', '': ''};
+  late Map<String, dynamic> items = {'': '', '': ''};
   List<Widget> items_list = [];
 
   @override
@@ -104,7 +103,6 @@ class _CounterPageState extends State<CounterPage> {
     fetch();
     Timer timer = Timer.periodic(Duration(seconds: 3), (timer) {
       fetch();
-      log("fetched inside timer");
     });
     if (this.mounted) {
       setState(() {});
@@ -116,26 +114,16 @@ class _CounterPageState extends State<CounterPage> {
   }
 
   void fetch() async {
-    // final httpPackageUrl = Uri.parse('https://dart.dev/f/packages/http.json');
-    // final httpPackageInfo = await http.read(httpPackageUrl);
-    // final httpPackageJson =
-    //     json.decode(httpPackageInfo) as Map<String, dynamic>;
-    final httpPackageJson = {
-      'counter': '0',
-      'items': {
-        'item1': '1',
-        'item2': '2',
-        'item3': '1',
-        'item4': '2',
-        'item5': '1',
-        'item6': '2',
-      }
-    };
+    final httpPackageUrl = Uri.parse('http://35.240.151.168:5000/trash_info');
+    final httpPackageInfo = await http.read(httpPackageUrl);
+    final httpPackageJson =
+        json.decode(httpPackageInfo) as Map<String, dynamic>;
+
     if (this.mounted) {
       setState(() {
         items_list = [];
-        _counter = httpPackageJson['counter'] as String;
-        items = httpPackageJson['items'] as Map<String, String>;
+        _counter = httpPackageJson['total_trash'] as String;
+        items = httpPackageJson['trash_types'];
         items.forEach((key, value) {
           items_list.add(
             Align(
@@ -153,7 +141,6 @@ class _CounterPageState extends State<CounterPage> {
               ),
             ),
           );
-          log("fetched");
         });
       });
     }
@@ -206,7 +193,7 @@ class VouchersPage extends StatefulWidget {
 
 class _VouchersPageState extends State<VouchersPage> {
   String _counter = '0';
-  late Map<String, String> items = {'': '', '': ''};
+  late Map<String, dynamic> items = {'': '', '': ''};
   List<Widget> items_list = [];
 
   @override
@@ -226,62 +213,98 @@ class _VouchersPageState extends State<VouchersPage> {
   }
 
   void fetch() async {
-    // final httpPackageUrl = Uri.parse('https://dart.dev/f/packages/http.json');
-    // final httpPackageInfo = await http.read(httpPackageUrl);
-    // final httpPackageJson =
-    //     json.decode(httpPackageInfo) as Map<String, dynamic>;
-    final httpPackageJson = {
-      'counter': '0',
-      'items': {
-        'item1': '1',
-        'item2': '2',
-        'item3': '1',
-        'item4': '2',
-        'item5': '1',
-        'item6': '2',
-      }
+    final httpPackageUrl = Uri.parse('http://35.240.151.168:5000/trash_info');
+    final httpPackageInfo = await http.read(httpPackageUrl);
+    final httpPackageJson =
+        json.decode(httpPackageInfo) as Map<String, dynamic>;
+
+    Map<String, String> vouchers = {
+      'Voucher X': '3',
+      'Voucher Y': '5',
+      'Voucher Z': '7',
+      'Voucher I': '9',
+      'Voucher J': '11',
+      'Voucher K': '13',
     };
 
     if (this.mounted) {
       setState(() {
         items_list = [];
-        _counter = httpPackageJson['counter'] as String;
-        items = httpPackageJson['items'] as Map<String, String>;
-        items.forEach((key, value) {
-          items_list.add(
-            Card(
-              child: SizedBox(
-                width: 300,
-                height: 100,
-                child: Center(
-                  child: Text(
-                    "$key: $value\n",
-                    style: TextStyle(
-                      fontSize: 18,
-                      height: 1,
-                    ),
-                    textAlign: TextAlign.center,
+        _counter = httpPackageJson['total_trash'] as String;
+        items = httpPackageJson['trash_types'];
+        vouchers.forEach((key, value) {
+          if (int.parse(_counter) < int.parse(value))
+            items_list.add(
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  color: Color.fromARGB(255, 255, 117, 114),
+                  elevation: 10,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                        title: Text(
+                          '$key',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 255, 234, 234),
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Points needed: $value',
+                          style: TextStyle(
+                            fontSize: 10.0,
+                            color: Color.fromARGB(255, 255, 234, 234),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          );
+            );
+          else {
+            items_list.add(
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  elevation: 10,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                        title: Text('$key'),
+                        subtitle: ElevatedButton(
+                          child: Text(
+                            'Redeem!',
+                            // style: TextStyle(
+                            //   color: Colors.white,
+                            // ),
+                          ),
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                _redeemVoucherDialog(context),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
           log("fetched");
         });
       });
     }
   }
-
-  List<String> vouchers = [
-    'Voucher X',
-    'Voucher Y',
-    'Voucher Z',
-    'Voucher I',
-    'Voucher J',
-    'Voucher K',
-  ];
-
-  List<int> points = [3, 5, 7, 9, 11, 13];
 
   @override
   Widget build(BuildContext context) {
@@ -316,6 +339,27 @@ class _VouchersPageState extends State<VouchersPage> {
       ],
     );
   }
+}
+
+Widget _redeemVoucherDialog(BuildContext context) {
+  return AlertDialog(
+    title: const Text('Redeem your voucher below!'),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text("<Process to redeem the voucher>"),
+      ],
+    ),
+    actions: <Widget>[
+      ElevatedButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        child: const Text('Close'),
+      ),
+    ],
+  );
 }
 
 class FriendsPage extends StatelessWidget {
